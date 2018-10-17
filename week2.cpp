@@ -22,7 +22,9 @@ public:
 char* GetData(const char *);
 
 template <typename T>
-void MySort(T*, uint32_t, bool(*)(const T&, const T&) = nullptr);
+void MyQSort(T*, uint32_t, bool(*)(const T&, const T&));
+template <typename T>
+void MyQSort(T*, uint32_t);
 int TextAdd(const Str*, uint32_t, const char*);
 
 bool Comp(const Str&, const Str&);
@@ -31,12 +33,14 @@ bool Comp(const Str&, const Str&);
 
 int main()
 {
-  setlocale(LC_ALL, "Rus");
+	setlocale(LC_ALL, "Rus");
 	char* Text = GetData("C:/Users/user/Downloads/yevgen.txt");//GetData("C:/Users/user/Downloads/file.txt");
 	if (Text == nullptr)
 		return 1;
 	uint32_t StrCounter = 0;
-	for (char* search = Text, *interm = std::strchr(search, '\n'); true; interm = std::strchr(search, '\n'))
+	char *interm = std::strchr(Text, '\n');
+
+	for (char* search = Text; true; interm = std::strchr(search, '\n'))
 	{
 		if (interm != nullptr)
 		{
@@ -45,7 +49,7 @@ int main()
 		}
 		else
 		{
-			if(*search != '\0')
+			if (*search != '\0')
 				StrCounter++;
 			break;
 		}
@@ -53,8 +57,9 @@ int main()
 
 	std::vector<Str> TextArray(StrCounter);
 	StrCounter = 0;
+	interm = std::strchr(Text, '\r');
 
-	for (char* search = Text, *interm = std::strchr(search, '\r'); true; interm = std::strchr(search, '\r'))
+	for (char* search = Text; true; interm = std::strchr(search, '\r'))
 	{
 		if (interm != nullptr)
 		{
@@ -79,14 +84,14 @@ int main()
 		return 1;
 	}
 	printf("First Part\n");
-	MySort(TextArray.data(), TextArray.size());
+	MyQSort(TextArray.data(), TextArray.size());
 	if (TextAdd(TextArray.data(), TextArray.size(), "C:/Users/user/Downloads/output.txt") != 0)
 	{
 		printf("Error with printing\n");
 		return 1;
 	}
 	printf("Second Part\n");
-	MySort(TextArray.data(), TextArray.size(), Comp);
+	MyQSort(TextArray.data(), TextArray.size(), Comp);
 	if (TextAdd(TextArray.data(), TextArray.size(), "C:/Users/user/Downloads/output.txt") != 0)
 	{
 		printf("Error with printing\n");
@@ -126,8 +131,7 @@ char* GetData(const char* Name)
 
 bool Str::operator>(const Str &rht) const
 {
-	uint32_t i = 0;
-	while (true)
+	for(uint32_t i = 0; ; i++)
 	{
 		if (i == rht.Size && i < this->Size)
 			return true;
@@ -137,7 +141,6 @@ bool Str::operator>(const Str &rht) const
 			return false;
 		if (this->Start[i] != rht.Start[i])
 			return this->Start[i] > rht.Start[i];
-		i++;
 	}
 }
 
@@ -158,8 +161,7 @@ Str & Str::operator=(const Str &rht)
 
 bool Str::operator<(const Str &rht) const
 {
-	uint32_t i = 0;
-	while (true)
+	for(uint32_t i = 0; ; i++)
 	{
 		if (i == rht.Size && i < this->Size)
 			return false;
@@ -169,53 +171,33 @@ bool Str::operator<(const Str &rht) const
 			return false;
 		if (this->Start[i] != rht.Start[i])
 			return this->Start[i] < rht.Start[i];
-		i++;
 	}
 }
 
 
 template<typename T>
-void MySort(T *Data, uint32_t Size, bool (*Comparator)(const T &, const T &))
+void MyQSort(T *Data, uint32_t Size, bool(*Comparator)(const T &, const T &))
 {
 	if (Size > 1)
 	{
-		uint32_t Pos = Size / 2, Counter = 0;
-		if (Comparator == nullptr)
-		{
-			for (uint32_t i = 0; i < Size; i++)
-				if (Data[Pos] > Data[i])
-					Counter++;
+		uint32_t Pos = Size / 2;
+		uint32_t Counter = 0;
+		for (uint32_t i = 0; i < Size; i++)
+			if (Comparator(Data[Pos], Data[i]))
+				Counter++;
 
-			std::swap(Data[Pos], Data[Counter]);
-			Pos = 0;
+		std::swap(Data[Pos], Data[Counter]);
+		Pos = 0;
 
-			for (uint32_t i = 0; i < Size; i++)
-				if (Data[Counter] > Data[i])
-				{
-					if (Pos != i)
-						std::swap(Data[Pos], Data[i]);
-					Pos++;
-				}
-		}
-		else
-		{
-			for (uint32_t i = 0; i < Size; i++)
-				if (Comparator(Data[Pos], Data[i]))
-					Counter++;
-
-			std::swap(Data[Pos], Data[Counter]);
-			Pos = 0;
-
-			for (uint32_t i = 0; i < Size; i++)
-				if (Comparator(Data[Counter], Data[i]))
-				{
-					if (Pos != i)
-						std::swap(Data[Pos], Data[i]);
-					Pos++;
-				}
-		}
-		MySort(Data, Counter, Comparator);
-		MySort(Data + Counter + 1, Size - Counter - 1, Comparator);
+		for (uint32_t i = 0; i < Size; i++)
+			if (Comparator(Data[Counter], Data[i]))
+			{
+				if (Pos != i)
+					std::swap(Data[Pos], Data[i]);
+				Pos++;
+			}
+		MyQSort(Data, Counter, Comparator);
+		MyQSort(Data + Counter + 1, Size - Counter - 1, Comparator);
 	}
 }
 
@@ -266,5 +248,33 @@ bool Comp(const Str& lft, const Str& rht)
 			return (*(lft.Start + i) > *(rht.Start + j));
 		i--;
 		j--;
+	}
+}
+
+template<typename T>
+void MyQSort(T *Data, uint32_t Size)
+{
+	if (Size > 1)
+	{
+		uint32_t Pos = Size / 2;
+		uint32_t Counter = 0;
+
+		for (uint32_t i = 0; i < Size; i++)
+			if (Data[Pos] > Data[i])
+				Counter++;
+
+	
+		std::swap(Data[Pos], Data[Counter]);
+		Pos = 0;
+
+		for (uint32_t i = 0; i < Size; i++)
+			if (Data[Counter] > Data[i])
+			{
+				if (Pos != i)
+					std::swap(Data[Pos], Data[i]);
+				Pos++;
+			}
+		MyQSort(Data, Counter);
+		MyQSort(Data + Counter + 1, Size - Counter - 1);
 	}
 }
