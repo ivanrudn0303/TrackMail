@@ -100,14 +100,11 @@ void Stack<T>::push(const T &PushData)
 template<typename T>
 T& Stack<T>::pop()
 {
-	if (this->empty())
-		throw(std::exception("Empty Stack\n"));
-	else
-		return Data[--Size];
+	assert(!empty());
+	return Data[--Size];
 
 }
 
-template<typename T>
 T& Stack<T>::pop(bool *state)
 {
 	if (!(this->empty()))
@@ -118,6 +115,7 @@ T& Stack<T>::pop(bool *state)
 	else
 	{
 		*state = false;
-		return T();
+		static T ret;
+		return ret;
 	}
 }
