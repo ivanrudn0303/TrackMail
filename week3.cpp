@@ -105,6 +105,7 @@ T& Stack<T>::pop()
 
 }
 
+template<typename T>
 T& Stack<T>::pop(bool *state)
 {
 	if (!(this->empty()))
