@@ -65,7 +65,7 @@ int Erase(Stack *St)
 {
 	Clear(St);
 	free(St->Data);
-	St->Capacity = 0;
+	StackCreate(St, 0);
 	return 0;
 }
 #else
