@@ -7,6 +7,7 @@
 #define ERROR_OVERFLOW 3
 #define ERROR_UNDERFLOW 4
 #define ERROR_POINTER 5
+#define ERROR_FILE 6
 
 
 #define STACK_DEBUG
@@ -33,6 +34,7 @@ typedef struct Stack
 
 uint64_t StackHash(const Stack*);
 int StackError(const Stack*);
+int StackDump(const Stack*, const char*);
 
 #else
 
@@ -51,4 +53,3 @@ bool inline Empty(const Stack*);
 int Clear(Stack*);
 int Erase(Stack*);
 #endif // !STACK_H
-
