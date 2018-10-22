@@ -23,25 +23,25 @@ uint64_t inline hash(uint64_t x)
 }
 //~hash
 
-using Stack = struct Stack
+typedef struct Stack
 {
 	uint64_t Hash;
 	uint32_t Size;
 	double *Data;
 	uint32_t Capacity;
-};
+} Stack;
 
 uint64_t StackHash(const Stack*);
 int StackError(const Stack*);
 
 #else
 
-using Stack = struct Stack
+typedef struct Stack
 {
 	uint32_t Size;
 	double *Data;
 	uint32_t Capacity;
-};
+} Stack;
 #endif
 
 int StackCreate(Stack*, uint32_t);
@@ -51,3 +51,4 @@ bool inline Empty(const Stack*);
 int Clear(Stack*);
 int Erase(Stack*);
 #endif // !STACK_H
+
