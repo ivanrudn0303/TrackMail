@@ -1,5 +1,7 @@
 #include "Stack.h"
 #include <cstdlib>
+#include <cstring>
+#include <iostream>
 
 #ifndef STACK_DEBUG
 
@@ -70,6 +72,47 @@ int Erase(Stack *St)
 }
 #else
 
+/*
+	malloc data = m (m * 72340172838076673)
+	realloc data = r (r * 72340172838076673)
+	clear data = c (c * 72340172838076673)
+	pop data = p (p * 72340172838076673)
+*/
+
+int StackDump(const Stack *St, const char *path)
+{
+	if (St != nullptr)
+	{
+		FILE *fd;
+		if (!fopen_s(&fd, path, "a"))
+		{
+			fprintf(fd, "Dump Stack [0x%p], ERROR = %d, HASH = %llu\n", St, StackError(St), St->Hash);
+			fprintf(fd, "DATA [0x%p], SIZE = %d, CAPACITY = %d:\n", St->Data, St->Size, St->Capacity);
+			for (uint32_t i = 0; i < St->Capacity; ++i)
+			{
+				uint64_t temp = *((uint64_t*)(St->Data + i));
+				char c = ' ';
+				if (temp == (72340172838076673 * 'c'))
+					c = 'c';
+				else if (temp == (72340172838076673 * 'm'))
+					c = 'm';
+				else if (temp == (72340172838076673 * 'r'))
+					c = 'r';
+				else if (temp == (72340172838076673 * 'p'))
+					c = 'p';
+				fprintf(fd, "[%d]\t(%c) %lg\n", i, c, (St->Data)[i]);
+			}
+			fprintf(fd, "\n");
+			fclose(fd);
+			return 0;
+		}
+		else
+			return ERROR_FILE;
+	}
+	else
+		return ERROR_POINTER;
+}
+
 uint64_t StackHash(const Stack *St)
 {
 	uint64_t Sum = St->Size + St->Capacity;
@@ -121,6 +164,8 @@ int Push(Stack *St, double value)
 			return ERROR_OVERFLOW;
 		St->Data = buf;
 		(St->Data)[St->Size++] = value;
+		for (uint32_t i = St->Size * sizeof(double); i < St->Capacity * sizeof(double); ++i)
+			*((char*)(St->Data) + i) = 'r';
 		St->Hash = StackHash(St);
 		if (StackError(St))
 			return ERROR_DATA;
@@ -135,6 +180,7 @@ int Pop(Stack *St, double *destination)
 	if (!Empty(St))
 	{
 		*destination = (St->Data)[--(St->Size)];
+		*((uint64_t*)(St->Data + St->Size)) = (72340172838076673 * 'p');
 		St->Hash = StackHash(St);
 		if (StackError(St))
 			return ERROR_DATA;
@@ -151,6 +197,8 @@ int StackCreate(Stack*St, uint32_t size)
 		St->Data = (double*)malloc(2 * size * sizeof(double));
 		if (St->Data == nullptr)
 			return ERROR_ALLOCATION;
+		for (uint32_t i = 0; i < 2 * size * sizeof(double); ++i)
+			*((char*)(St->Data) + i) = 'm';
 	}
 	else
 		St->Data = nullptr;
@@ -171,6 +219,8 @@ int Clear(Stack *St)
 {
 	if (StackError(St))
 		return ERROR_DATA;
+	for (uint32_t i = 0; i < St->Size * sizeof(double); ++i)
+		*((char*)(St->Data) + i) = 'c';
 	St->Size = 0;
 	St->Hash = StackHash(St);
 	if (StackError(St))
@@ -182,7 +232,8 @@ int Erase(Stack *St)
 {
 	if (StackError(St))
 		return ERROR_DATA;
-	Clear(St);
+	if (Clear(St) != 0)
+		return ERROR_DATA;
 	free(St->Data);
 	StackCreate(St, 0);
 	if (StackError(St))
