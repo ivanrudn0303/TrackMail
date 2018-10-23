@@ -143,14 +143,15 @@ int StackError(const Stack *St)
 
 int Push(Stack *St, double value)
 {
-	if (StackError(St))
-		return ERROR_DATA;
+	int Error = 0;
+	if (Error = StackError(St))
+		return Error;
 	if (St->Capacity > St->Size)
 	{
 		(St->Data)[St->Size++] = value;
 		St->Hash = StackHash(St);
-		if (StackError(St))
-			return ERROR_DATA;
+		if ((Error = StackError(St)))
+			return Error;
 		return 0;
 	}
 	else
@@ -167,23 +168,24 @@ int Push(Stack *St, double value)
 		for (uint32_t i = St->Size * sizeof(double); i < St->Capacity * sizeof(double); ++i)
 			*((char*)(St->Data) + i) = 'r';
 		St->Hash = StackHash(St);
-		if (StackError(St))
-			return ERROR_DATA;
+		if (Error = StackError(St))
+			return Error;
 		return 0;
 	}
 }
 
 int Pop(Stack *St, double *destination)
 {
-	if (StackError(St))
-		return ERROR_DATA;
+	int Error = 0;
+	if (Error = StackError(St))
+		return Error;
 	if (!Empty(St))
 	{
 		*destination = (St->Data)[--(St->Size)];
 		*((uint64_t*)(St->Data + St->Size)) = (72340172838076673 * 'p');
 		St->Hash = StackHash(St);
-		if (StackError(St))
-			return ERROR_DATA;
+		if (Error = StackError(St))
+			return Error;
 		return 0;
 	}
 	else
@@ -192,6 +194,7 @@ int Pop(Stack *St, double *destination)
 
 int StackCreate(Stack*St, uint32_t size)
 {
+	int Error = 0;
 	if (size)
 	{
 		St->Data = (double*)malloc(2 * size * sizeof(double));
@@ -205,8 +208,8 @@ int StackCreate(Stack*St, uint32_t size)
 	St->Capacity = 2 * size;
 	St->Size = 0;
 	St->Hash = StackHash(St);
-	if (StackError(St))
-		return ERROR_DATA;
+	if (Error = StackError(St))
+		return Error;
 	return 0;
 }
 
@@ -217,27 +220,29 @@ bool inline Empty(const Stack *St)
 
 int Clear(Stack *St)
 {
-	if (StackError(St))
-		return ERROR_DATA;
+	int Error = 0;
+	if (Error = StackError(St))
+		return Error;
 	for (uint32_t i = 0; i < St->Size * sizeof(double); ++i)
 		*((char*)(St->Data) + i) = 'c';
 	St->Size = 0;
 	St->Hash = StackHash(St);
-	if (StackError(St))
-		return ERROR_DATA;
+	if (Error = StackError(St))
+		return Error;
 	return 0;
 }
 
 int Erase(Stack *St)
 {
-	if (StackError(St))
-		return ERROR_DATA;
+	int Error = 0;
+	if (Error = StackError(St))
+		return Error;
 	if (Clear(St) != 0)
 		return ERROR_DATA;
 	free(St->Data);
 	StackCreate(St, 0);
-	if (StackError(St))
-		return ERROR_DATA;
+	if (Error = StackError(St))
+		return Error;
 	return 0;
 }
 #endif // !STACK_DEBUG
