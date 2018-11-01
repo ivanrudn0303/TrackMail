@@ -12,7 +12,6 @@
 
 #define STACK_DEBUG
 
-
 #ifdef STACK_DEBUG
 
 //hash
@@ -23,28 +22,18 @@ uint64_t inline hash(uint64_t x)
 	return (x * a + c);
 }
 //~hash
-
-typedef struct Stack
-{
-	uint64_t Hash;
-	uint32_t Size;
-	double *Data;
-	uint32_t Capacity;
-} Stack;
-
-uint64_t StackHash(const Stack*);
-int StackError(const Stack*);
-int StackDump(const Stack*, const char*);
-
-#else
-
-typedef struct Stack
-{
-	uint32_t Size;
-	double *Data;
-	uint32_t Capacity;
-} Stack;
 #endif
+
+typedef struct Stack
+{
+#ifdef STACK_DEBUG
+	uint64_t Hash;
+#endif
+	uint32_t Size;
+	double *Data;
+	uint32_t Capacity;
+} Stack;
+
 
 int StackCreate(Stack*, uint32_t);
 int Push(Stack*, double);
@@ -52,4 +41,16 @@ int Pop(Stack*, double*);
 bool inline Empty(const Stack*);
 int Clear(Stack*);
 int Erase(Stack*);
+
+
+
+#ifdef STACK_DEBUG
+
+uint64_t StackHash(const Stack*);
+int StackError(const Stack*);
+int StackDump(const Stack*, const char*, int=0);
+
+#endif // STACK_DEBUG
+
+
 #endif // !STACK_H
