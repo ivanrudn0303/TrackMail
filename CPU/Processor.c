@@ -1,5 +1,6 @@
 #include "Processor.h"
 #include <cstdlib>
+#include <iostream>
 
 #define COMMAND(func, num) \
 case num:\
@@ -7,6 +8,25 @@ case num:\
 		return ERROR_COMMAND;\
 	break;
 
+#ifdef PROCESSOR_DEBUG
+
+int ProcessorDump(const Processor *Proc, const char *path, int ErrorCode)
+{
+	if (Proc == nullptr)
+		return ERROR_POINTER;
+
+	FILE *fd;
+	if (fopen_s(&fd, path, "a"))
+		return ERROR_FILE;
+
+	fprintf(fd, "Dump Processor [0x%p], ERROR = %d\n", Proc, ErrorCode);
+	fprintf(fd, "Program Counter: %lu\n", Proc->PC);
+	fprintf(fd, "Registers: r[0] = %lg, r[1] = %lg, r[2] = %lg, r[3] = %lg\n", Proc->r[0], Proc->r[1], Proc->r[2], Proc->r[3]);
+	fclose(fd);
+	return StackDump(Proc->St, path);
+}
+
+#endif // PROCESSOR_DEBUG
 
 int ProcessorCreate(Processor* Proc)
 {
@@ -30,9 +50,12 @@ int ProcessorExec(Processor *Proc, const char *Code, uint32_t Argc, double* Argv
 	}
 	while (true)
 	{
+#ifdef PROCESSOR_DEBUG
+		ProcessorDump(Proc, "ProcessorLog.txt");
+#endif // PROCESSOR_DEBUG
 		switch (Code[Proc->PC])
 		{
-		#include "CommandList.h"
+#include "CommandList.h"
 
 		case 32:
 			return RET(Proc, ret);
@@ -62,7 +85,15 @@ int PUSH(Processor *Pr, const char *code)
 
 int POP(Processor *Pr, const char* code)
 {
+#ifdef PROCESSOR_DEBUG
+	int err;
+	if ((code[Pr->PC + 1] < 4) && (code[Pr->PC + 1] >= 0))
+		err = Pop(Pr->St, Pr->r + code[Pr->PC + 1]);
+	else
+		return ERROR_COMMAND;
+#else
 	int err = Pop(Pr->St, Pr->r + code[Pr->PC + 1]);
+#endif // PROCESSOR_DEBUG
 	Pr->PC += 2;
 	return err;
 }
