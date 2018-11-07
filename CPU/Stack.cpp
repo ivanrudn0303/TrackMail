@@ -3,6 +3,7 @@
 #include <cstring>
 #include <iostream>
 
+
 #ifdef STACK_DEBUG
 #define STACK_CHECK(Stk) \
 {\
@@ -35,11 +36,11 @@ int StackDump(const Stack *St, const char *path, int ErrorCode)
 	if (St == nullptr)
 		return ERROR_POINTER;
 
-	FILE *fd;
-	if (fopen_s(&fd, path, "a"))
+	FILE *fd = fopen(path, "a");
+	if (fd == nullptr)
 		return ERROR_FILE;
 
-	if (ErrorCode)
+	if(ErrorCode)
 		fprintf(fd, "Dump Stack [0x%p], ERROR = %d, HASH = %llu\n", St, ErrorCode, St->Hash);
 	else
 		fprintf(fd, "Dump Stack [0x%p], ERROR = %d, HASH = %llu\n", St, StackError(St), St->Hash);
@@ -164,9 +165,9 @@ int Pop(Stack *St, double *destination)
 		--(St->Size);
 
 #ifdef STACK_DEBUG
-	*((uint64_t*)(St->Data + St->Size)) = (72340172838076673 * 'p');
-	St->Hash = StackHash(St);
-	STACK_CHECK(St);
+		*((uint64_t*)(St->Data + St->Size)) = (72340172838076673 * 'p');
+		St->Hash = StackHash(St);
+		STACK_CHECK(St);
 #endif // STACK_DEBUG
 	return 0;
 }
@@ -237,7 +238,7 @@ int Erase(Stack *St)
 
 	free(St->Data);
 	StackCreate(St, 0);
-
+	
 	STACK_CHECK(St);
 	return 0;
 }
