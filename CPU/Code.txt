@@ -1,0 +1,10 @@
+mar: PUSH 5.5
+PUSH 2
+MUL
+JMP metka
+PUSH 4
+ADD
+metka: JMP return 
+PUSH 7
+SUB
+return: RET
