@@ -1,5 +1,7 @@
 #ifndef STACK_H
 #define STACK_H
+
+#pragma warning(disable : 4996)
 #include <cstdint>
 
 #define ERROR_ALLOCATION 1
@@ -9,8 +11,8 @@
 #define ERROR_POINTER 5
 #define ERROR_FILE 6
 
-#define STACK_DEBUG
 
+#define STACK_DEBUG
 
 #ifdef STACK_DEBUG
 
@@ -48,7 +50,7 @@ int Erase(Stack*);
 
 uint64_t StackHash(const Stack*);
 int StackError(const Stack*);
-int StackDump(const Stack*, const char*, int = 0);
+int StackDump(const Stack*, const char*, int=0);
 
 #endif // STACK_DEBUG
 
