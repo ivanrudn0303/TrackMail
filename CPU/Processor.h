@@ -5,19 +5,23 @@
 
 #define COMMAND(func, name) int func(Processor*, const char*); 
 
-//#define PROCESSOR_DEBUG
+#define PROCESSOR_DEBUG
 
 #ifdef PROCESSOR_DEBUG
 #define STACK_DEBUG
 #endif // PROCESSOR_DEBUG
 #include "Stack.h"
 
-typedef struct 
+typedef struct
 {
 	uint32_t PC;
 	double r[4];
 	Stack *St;
 } Processor;
+
+#ifdef PROCESSOR_DEBUG
+int ProcessorDump(const Processor*, const char*, int = 0);
+#endif // PROCESSOR_DEBUG
 
 int ProcessorCreate(Processor*);
 int ProcessorExec(Processor*, const char*, uint32_t, double*, double*);
