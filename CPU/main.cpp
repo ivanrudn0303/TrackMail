@@ -6,17 +6,18 @@ int main()
 {
 	printf("proc\n");
 	Processor Proc;
-	int Error = ProcessorCreate(&Proc);
-	std::cout << Error << std::endl;
-//	char Code[] = {20, 4, 0, 0, 0, 0, 0, 0, 0xc0, 0x3f, 12, 28, 16, 0, 0, 0, 32};
-	char* Text = ReadData("Code.txt");
+	std::cout << ProcessorCreate(&Proc) << std::endl;
+	char* Text = ReadData("Factorial.txt");
 	uint32_t size;
-//	char* Code = BinaryCreate(Text, &size);
-//	Error = WriteData(Code, size, "code.o");
-	char* Code = ReadData("Code.o");
+	char* Code = BinaryCreate(Text, &size);
+	WriteData(Code, size, "Factorial.o");
+	free(Code);
+	Code = ReadData("Factorial.o");
 	double data[] = { 1.5, 4.0 };
 	double ans;
-	ProcessorExec(&Proc, Code, 0, nullptr, &ans);
+	double in;
+	std::cin >> in;
+	std::cout << ProcessorExec(&Proc, Code, 1, &in, &ans) << std::endl;
 	std::cout << ans << std::endl;
 	free(Text);
 	free(Code);
