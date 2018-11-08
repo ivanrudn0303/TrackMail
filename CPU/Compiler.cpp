@@ -4,18 +4,15 @@
 #include <cstdint>
 #include <cstring>
 
-#define COMMAND(name, num) if((strstr(start, #name) != nullptr) && strstr(start, #name) < end)\
-{\
-	if(COMPILE_##name(start, end, code, &Pos, &MarkArray))\
-	{\
-		free(code);\
-		return nullptr;\
-	}\
-}\
-else 
 
-char* End(const char*);
+char* FindEnd(const char*);
+int AddMark(const char*, const char*, uint32_t, std::vector<Mark>*);
+int ChangePosMark(const char*, uint32_t, std::vector<Mark>*);
+int FillMark(char*, const std::vector<Mark>*);
+int AddPaste(const char*, uint32_t, std::vector<Mark>*);
 uint32_t FindMark(const char*, std::vector<Mark>*);
+
+int Jumper(const char*, const char*, char*, uint32_t*, std::vector<Mark>*, char);
 
 char * ReadData(const char *Name)
 {
@@ -44,6 +41,16 @@ char * ReadData(const char *Name)
 	}
 }
 
+#define COMMAND(name, num) if((strstr(start, #name) != nullptr) && strstr(start, #name) < end)\
+{\
+	if(COMPILE_##name(start, end, code, &Pos, &MarkArray))\
+	{\
+		free(code);\
+		return nullptr;\
+	}\
+}\
+else 
+
 char * BinaryCreate(const char *Data, uint32_t *FileSize)
 {
 	if (Data == nullptr)
@@ -52,60 +59,38 @@ char * BinaryCreate(const char *Data, uint32_t *FileSize)
 	uint32_t Size = strlen(Data);
 	uint32_t Pos = 0;
 	const char *start = Data;
-	const char *end = Data, *mark;
+	const char *end = Data;
 	char *code = (char*)malloc(4 * Size);
 	std::vector<Mark> MarkArray;
 	while (*end != '\0')
 	{
-		end = End(start);
-		mark = strchr(start, ':');
-		if ((mark != nullptr) && (mark < end))
-			MarkArray.push_back({std::string(start, mark), Pos});
-
-		#include "CommandList.h"
-		if ((strstr(start, "RET") != nullptr) && strstr(start, "RET") < end)
-		{
-			if (COMPILE_RET(start, code, &Pos))
-			{
-				free(code);
-				return nullptr;
-			}
-		}
-		if (*end != '\0')
-			start = end + 1;
-	}
-
-	Pos = 0;
-	start = Data;
-	end = Data;
-	while (*end != '\0')
-	{
-		end = End(start);
+		end = FindEnd(start);
+		AddMark(start, end, Pos, &MarkArray);
 
 #include "CommandList.h"
-		if ((strstr(start, "RET") != nullptr) && strstr(start, "RET") < end)
+		if ((strstr(start, "EXIT") != nullptr) && strstr(start, "EXIT") < end)
 		{
-			if (COMPILE_RET(start, code, &Pos))
+			if (COMPILE_EXIT(start, code, &Pos))
 			{
 				free(code);
 				return nullptr;
 			}
 		}
 		if (*end != '\0')
-			start = end + 1;
+			start = end + 2;
 	}
-
+	FillMark(code, &MarkArray);
 	*FileSize = Pos;
 	if (Pos)
 		return (char*)realloc(code, Pos);
 	else
 		return nullptr;
 }
+#undef COMMAND
 
-
-char* End(const char* str)
+char* FindEnd(const char* str)
 {
-	char *ret = (char*)strchr(str, '\n');
+	char *ret = min((char*)strchr(str, '\n'), (char*)strchr(str, '\r'));
 	if (ret == nullptr)
 		ret = (char*)strchr(str, '\0');
 	char *comment = (char*)strchr(str, '/');
@@ -115,10 +100,51 @@ char* End(const char* str)
 		return ret;
 }
 
-
-int COMPILE_RET(const char *Start, char *Code, uint32_t *Pos)
+int AddMark(const char *Start, const char *End, uint32_t Pos, std::vector<Mark>* Array)
 {
-	Code[(*Pos)++] = (char)32;
+	const char* mark = strchr(Start, ':');
+	if ((mark == nullptr) || (mark > End))
+		return 0;
+	if (FindMark(Start, Array) == ~0U(32))
+		Array->push_back({ std::string(Start, mark), Pos , std::vector<uint32_t>() });
+	else
+		ChangePosMark(Start, Pos, Array);
+	return 0;
+}
+
+int ChangePosMark(const char* Start, uint32_t Line, std::vector<Mark>* Array)
+{
+	for (uint32_t i = 0; i < Array->size(); ++i)
+		if (strncmp((*Array)[i].Str.c_str(), Start, (*Array)[i].Str.size()) == 0)
+		{
+			(*Array)[i].Line = Line;
+			break;
+		}
+	return 0;
+}
+
+int AddPaste(const char *Start, uint32_t Paste, std::vector<Mark> *Array)
+{
+	for (uint32_t i = 0; i < Array->size(); ++i)
+		if (strncmp((*Array)[i].Str.c_str(), Start, (*Array)[i].Str.size()) == 0)
+		{
+			(*Array)[i].Paste.push_back(Paste);
+			break;
+		}
+	return 0;
+}
+
+int FillMark(char *Code, const std::vector<Mark>* Array)
+{
+	for(uint32_t i = 0; i < Array->size(); ++i)
+		for (uint32_t j = 0; j < (*Array)[i].Paste.size(); ++j)
+			*(uint32_t*)(Code + (*Array)[i].Paste[j]) = (*Array)[i].Line;
+	return 0;
+}
+
+int COMPILE_EXIT(const char *Start, char *Code, uint32_t *Pos)
+{
+	Code[(*Pos)++] = BYTE_EXIT;
 	return 0;
 }
 
@@ -129,9 +155,20 @@ int COMPILE_PUSH(const char *Start, const char* End, char *Code, uint32_t *Pos, 
 	if ((num == nullptr) || (num > End))
 		return 1;
 
-	Code[(*Pos)++] = (char)4;
+	Code[(*Pos)++] = BYTE_PUSH;
 	*(double*)(Code + *Pos) = atof(num);
 	*Pos += sizeof(double);
+	return 0;
+}
+
+int COMPILE_PUSHR(const char *Start, const char* End, char *Code, uint32_t *Pos, std::vector<Mark>*)
+{
+	const char* num = strchr(Start, 'P');
+	num = strchr(num, 'r');
+	if ((num == nullptr) || (num > End))
+		return 1;
+	Code[(*Pos)++] = BYTE_PUSHR;
+	Code[(*Pos)++] = num[1] - '0';
 	return 0;
 }
 
@@ -142,43 +179,71 @@ int COMPILE_POP(const char *Start, const char* End, char *Code, uint32_t *Pos, s
 	if ((num == nullptr) || (num > End))
 		return 1;
 
-	Code[(*Pos)++] = (char)8;
+	Code[(*Pos)++] = BYTE_POP;
 	Code[(*Pos)++] = num[1] - '0';
 	return 0;
 }
 
 int COMPILE_ADD(const char *Start, const char* End, char *Code, uint32_t *Pos, std::vector<Mark>*)
 {
-	Code[(*Pos)++] = (char)12;
+	Code[(*Pos)++] = BYTE_ADD;
 	return 0;
 }
 
 int COMPILE_SUB(const char *Start, const char* End, char *Code, uint32_t *Pos, std::vector<Mark>*)
 {
-	Code[(*Pos)++] = (char)16;
+	Code[(*Pos)++] = BYTE_SUB;
 	return 0;
 }
 
 int COMPILE_MUL(const char *Start, const char* End, char *Code, uint32_t *Pos, std::vector<Mark>*)
 {
-	Code[(*Pos)++] = (char)20;
+	Code[(*Pos)++] = BYTE_MUL;
 	return 0;
 }
 
 int COMPILE_DIV(const char *Start, const char* End, char *Code, uint32_t *Pos, std::vector<Mark>*)
 {
-	Code[(*Pos)++] = (char)24;
+	Code[(*Pos)++] = BYTE_DIV;
 	return 0;
 }
 
 int COMPILE_JMP(const char *Start, const char* End, char *Code, uint32_t *Pos, std::vector<Mark>* Array)
 {
+	Code[(*Pos)++] = BYTE_JMP;
+	return Jumper(Start, End, Code, Pos, Array, 'J');
+}
+
+int COMPILE_JE(const char *Start, const char* End, char *Code, uint32_t *Pos, std::vector<Mark>* Array)
+{
+	Code[(*Pos)++] = BYTE_JE;
+	return Jumper(Start, End, Code, Pos, Array, 'J');
+}
+
+int COMPILE_CALL(const char *Start, const char* End, char *Code, uint32_t *Pos, std::vector<Mark>* Array)
+{
+	Code[(*Pos)++] = BYTE_CALL;
+	return Jumper(Start, End, Code, Pos, Array, 'C');
+}
+
+int COMPILE_RET(const char *Start, const char* End, char *Code, uint32_t *Pos, std::vector<Mark>* Array)
+{
+	Code[(*Pos)++] = BYTE_RET;
+	return 0;
+}
+
+int Jumper(const char *Start, const char* End, char *Code, uint32_t *Pos, std::vector<Mark>* Array, char c)
+{
 	char alphabet[] = "abcdefghigklmnopqrstuvwxyz123456789";
-	Code[(*Pos)++] = (char)28;
-	const char* num = strchr(Start, 'J');
+	const char* num = strchr(Start, c);
 	num = strchr(num, ' ');
 	num = num + strcspn(num, alphabet);
-	*(uint32_t*)(Code + *Pos) = FindMark(num, Array);
+	uint32_t Line = FindMark(num, Array);
+	if (Line != ~0U(32))
+		AddPaste(num, *Pos, Array);
+	else
+		Array->push_back({ std::string(num, FindEnd(num) - num), 0, std::vector<uint32_t>({ *Pos }) });
+	*(uint32_t*)(Code + *Pos) = Line;
 	*Pos += sizeof(uint32_t);
 	return 0;
 }
@@ -207,4 +272,3 @@ int WriteData(const char *Data, uint32_t Size, const char* Path)
 	CloseHandle(hFile);
 	return 0;
 }
-#undef COMMAND
