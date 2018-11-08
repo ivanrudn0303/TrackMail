@@ -2,8 +2,7 @@
 #define PROCESSOR_H
 
 #define ERROR_COMMAND 7
-
-#define COMMAND(func, name) int func(Processor*, const char*); 
+#define AMOUNT_REGISTERS 4
 
 #define PROCESSOR_DEBUG
 
@@ -15,8 +14,9 @@
 typedef struct
 {
 	uint32_t PC;
-	double r[4];
+	double r[AMOUNT_REGISTERS];
 	Stack *St;
+	Stack *RetSt;
 } Processor;
 
 #ifdef PROCESSOR_DEBUG
@@ -26,8 +26,11 @@ int ProcessorDump(const Processor*, const char*, int = 0);
 int ProcessorCreate(Processor*);
 int ProcessorExec(Processor*, const char*, uint32_t, double*, double*);
 void ProcessorDestruct(Processor*);
-#include "CommandList.h"
 
-int RET(Processor*, double*);
+
+#define COMMAND(func, num) int func(Processor*, const char*); 
+#include "CommandList.h"
+int EXIT(Processor*, double*);
 #undef COMMAND
+
 #endif // !PROCESSOR_H
