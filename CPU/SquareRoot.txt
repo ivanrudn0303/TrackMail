@@ -1,0 +1,120 @@
+POP r2
+POP r1
+POP r0
+
+PUSHR r0
+PUSH 0
+JE linear
+/Det--------
+PUSH -4
+PUSHR r0
+PUSHR r2
+MUL
+MUL
+PUSHR r1
+PUSHR r1
+MUL
+ADD
+POP r3
+PUSHR r3
+PUSH 0
+JG noroots
+PUSHR r3
+PUSH 0
+JE oneroot
+PUSH 2
+PUSHR r0
+MUL
+PUSHR r1
+PUSHR r3
+CALL sqrt
+POP r3
+POP r1
+POP r0
+/DIVide by 2a-------
+PUSHR r0
+PUSHR r1
+PUSH 0
+SUB
+DIV
+POP r1
+
+PUSHR r0
+PUSHR r3
+DIV
+POP r3
+
+/answer--------
+
+PUSHR r3
+PUSHR r1
+ADD
+
+PUSHR r3
+PUSHR r1
+SUB
+
+PUSH 2
+EXIT
+
+noroots:	PUSH 0
+		EXIT
+
+oneroot:	PUSH -2
+		PUSHR r0
+		MUL
+		PUSHR r1
+		DIV
+		PUSH 1
+		EXIT
+
+
+/---------------------------------------------
+
+sqrt:	PUSH 50
+	POP r0
+	POP r1
+	PUSH 1.0
+loop:	POP r2
+	PUSHR r2
+	PUSHR r1
+	DIV
+	PUSHR r2
+	ADD
+	PUSH 0.5
+	MUL
+	PUSHR r0
+	PUSH 0
+	JE retsqrt
+	PUSH 1
+	PUSHR r0
+	SUB
+	POP r0
+	JMP loop
+
+retsqrt:	RET
+
+/----------------------------------------------		
+
+
+linear:	PUSH 0
+	PUSHR r1
+	JE inflinear
+	PUSHR r1
+	PUSH 0
+	SUB
+	PUSHR r2
+	DIV
+	PUSH 1
+	EXIT
+
+inflinear:	PUSH 0
+		PUSHR r2
+		JE infroot
+		PUSH 0
+		EXIT
+
+infroot:	PUSH 0
+		PUSH 1
+		DIV
+		EXIT
