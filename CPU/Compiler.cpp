@@ -220,6 +220,18 @@ int COMPILE_JE(const char *Start, const char* End, char *Code, uint32_t *Pos, st
 	return Jumper(Start, End, Code, Pos, Array, 'J');
 }
 
+int COMPILE_JL(const char *Start, const char* End, char *Code, uint32_t *Pos, std::vector<Mark>* Array)
+{
+	Code[(*Pos)++] = BYTE_JL;
+	return Jumper(Start, End, Code, Pos, Array, 'J');
+}
+
+int COMPILE_JG(const char *Start, const char* End, char *Code, uint32_t *Pos, std::vector<Mark>* Array)
+{
+	Code[(*Pos)++] = BYTE_JG;
+	return Jumper(Start, End, Code, Pos, Array, 'J');
+}
+
 int COMPILE_CALL(const char *Start, const char* End, char *Code, uint32_t *Pos, std::vector<Mark>* Array)
 {
 	Code[(*Pos)++] = BYTE_CALL;
