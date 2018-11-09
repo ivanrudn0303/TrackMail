@@ -101,7 +101,7 @@ int PUSHR(Processor *Pr, const char *code)
 	else
 		return ERROR_COMMAND;
 #else
-	int err = Push(Pr->St, *(Pr->r + Pr->PC + 1));
+	int err = Push(Pr->St, *(Pr->r + code[Pr->PC + 1]));
 #endif // PROCESSOR_DEBUG
 	Pr->PC += 2;
 	return err;
@@ -212,6 +212,38 @@ int JE(Processor *Pr, const char* code)
 	return 0;
 }
 
+int JG(Processor *Pr, const char* code)
+{
+	double first, second;
+	int err = Pop(Pr->St, &first);
+	if (err)
+		return err;
+	err = Pop(Pr->St, &second);
+	if (err)
+		return err;
+	if (first > second)
+		Pr->PC = *(uint32_t*)(code + Pr->PC + 1);
+	else
+		Pr->PC += 1 + sizeof(uint32_t);
+	return 0;
+}
+
+int JL(Processor *Pr, const char* code)
+{
+	double first, second;
+	int err = Pop(Pr->St, &first);
+	if (err)
+		return err;
+	err = Pop(Pr->St, &second);
+	if (err)
+		return err;
+	if (first < second)
+		Pr->PC = *(uint32_t*)(code + Pr->PC + 1);
+	else
+		Pr->PC += 1 + sizeof(uint32_t);
+	return 0;
+}
+
 int CALL(Processor *Pr, const char* code)
 {
 	uint64_t RetAddr = Pr->PC + 1 + sizeof(uint32_t);
@@ -238,7 +270,7 @@ int EXIT(Processor *Pr, double* ret)
 	if ((ret == nullptr) && (Pr->St->Size > 0))
 		return ERROR_POINTER;
 	int err;
-	for (uint32_t i = 0; i < Pr->St->Size; ++i)
+	for (uint32_t i = 0; Pr->St->Size; ++i)
 	{
 		err = Pop(Pr->St, ret + i);
 		if (err)
