@@ -4,11 +4,7 @@
 
 #define EXIT_NUM 32
 
-#define COMMAND(func, num) \
-case num:\
-	if(func(Proc, Code))\
-		return ERROR_COMMAND;\
-	break;
+
 
 #ifdef PROCESSOR_DEBUG
 
@@ -44,6 +40,12 @@ int ProcessorCreate(Processor* Proc)
 	return StackCreate(Proc->St, 0) || StackCreate(Proc->RetSt, 0);
 }
 
+#define COMMAND(func, num) \
+case num:\
+	if(func(Proc, Code))\
+		return ERROR_COMMAND;\
+	break;
+
 int ProcessorExec(Processor *Proc, const char *Code, uint32_t Argc, double* Argv, double* ret)
 {
 	if ((Argc && (Argv == nullptr)) || (Code == nullptr) || (Proc == nullptr))
@@ -74,7 +76,7 @@ int ProcessorExec(Processor *Proc, const char *Code, uint32_t Argc, double* Argv
 
 	return 0;
 }
-
+#undef COMMAND
 
 void ProcessorDestruct(Processor* Proc)
 {
@@ -278,4 +280,3 @@ int EXIT(Processor *Pr, double* ret)
 	}
 	return 0;
 }
-#undef COMMAND
