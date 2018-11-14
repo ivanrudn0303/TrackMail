@@ -1,3 +1,6 @@
+IN
+OUT
+
 POP r2
 POP r1
 POP r0
