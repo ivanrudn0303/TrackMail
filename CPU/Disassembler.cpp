@@ -26,6 +26,12 @@ int Disassemble(const char *Code, const char* path, uint32_t Size)
 
 	while (Counter < Size)
 	{
+		if ((iterator < mark.size()) && (Counter == mark[iterator]))
+		{
+			fprintf(fd, "%lu: ", Counter);
+			iterator++;
+		}
+
 		switch (Code[Counter])
 		{
 #include "CommandList.h"
@@ -35,12 +41,6 @@ int Disassemble(const char *Code, const char* path, uint32_t Size)
 			break;
 		default:
 			return ERROR_COMMAND;
-		}
-
-		if ((iterator < mark.size()) && (Counter == mark[iterator]))
-		{
-			fprintf(fd, "%lu: ", Counter);
-			iterator++;
 		}
 	}
 	fclose(fd);
