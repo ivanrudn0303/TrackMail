@@ -267,6 +267,25 @@ int RET(Processor *Pr, const char* code)
 	return 0;
 }
 
+int IN(Processor *Pr, const char* code)
+{
+	double var;
+	scanf("%lf", &var);
+	Pr->PC++;
+	return Push(Pr->St, var);
+}
+
+int OUT(Processor *Pr, const char* code)
+{
+	double var;
+	int err = Pop(Pr->St, &var);
+	if (err)
+		return err;
+	Pr->PC++;
+	printf("%lf\n", var);
+	return 0;
+}
+
 int EXIT(Processor *Pr, double* ret)
 {
 	if ((ret == nullptr) && (Pr->St->Size > 0))
