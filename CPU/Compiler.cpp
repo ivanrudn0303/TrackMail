@@ -125,6 +125,13 @@ int ChangePosMark(const char* Start, uint32_t Line, std::vector<Mark>* Array)
 
 int AddPaste(const char *Start, uint32_t Paste, std::vector<Mark> *Array)
 {
+	uint32_t Line = FindMark(Start, Array);
+	if (Line == ~0U(32))
+	{
+		Array->push_back({ std::string(Start, FindEnd(Start) - Start), 0, std::vector<uint32_t>({ Paste }) });
+		return 0;
+	}
+
 	for (uint32_t i = 0; i < Array->size(); ++i)
 		if (strncmp((*Array)[i].Str.c_str(), Start, (*Array)[i].Str.size()) == 0)
 		{
@@ -244,6 +251,18 @@ int COMPILE_RET(const char *Start, const char* End, char *Code, uint32_t *Pos, s
 	return 0;
 }
 
+int COMPILE_IN(const char *Start, const char* End, char *Code, uint32_t *Pos, std::vector<Mark>*)
+{
+	Code[(*Pos)++] = BYTE_IN;
+	return 0;
+}
+
+int COMPILE_OUT(const char *Start, const char* End, char *Code, uint32_t *Pos, std::vector<Mark>*)
+{
+	Code[(*Pos)++] = BYTE_OUT;
+	return 0;
+}
+
 int Jumper(const char *Start, const char* End, char *Code, uint32_t *Pos, std::vector<Mark>* Array, char c)
 {
 	char alphabet[] = "abcdefghigklmnopqrstuvwxyz123456789";
@@ -251,10 +270,10 @@ int Jumper(const char *Start, const char* End, char *Code, uint32_t *Pos, std::v
 	num = strchr(num, ' ');
 	num = num + strcspn(num, alphabet);
 	uint32_t Line = FindMark(num, Array);
-	if (Line != ~0U(32))
-		AddPaste(num, *Pos, Array);
-	else
-		Array->push_back({ std::string(num, FindEnd(num) - num), 0, std::vector<uint32_t>({ *Pos }) });
+//	if (Line != ~0U(32))
+	AddPaste(num, *Pos, Array);
+//	else
+//		Array->push_back({ std::string(num, FindEnd(num) - num), 0, std::vector<uint32_t>({ *Pos }) });
 	*(uint32_t*)(Code + *Pos) = Line;
 	*Pos += sizeof(uint32_t);
 	return 0;
