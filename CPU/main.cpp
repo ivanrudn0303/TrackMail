@@ -19,9 +19,7 @@ int main()
 	char* dis = ReadData("dis.txt");
 	Code = BinaryCreate(dis, &size);
 	double ans[3] = {NAN, NAN, NAN};
-	double in[3];
-	std::cin >> in[0] >> in[1] >> in[2];
-	std::cout << ProcessorExec(&Proc, Code, 3, in, ans) << std::endl;
+	std::cout << ProcessorExec(&Proc, Code, 0, nullptr, ans) << std::endl;
 	std::cout <<"roots: "<< ans[0] << std::endl <<ans[1] << " " << ans[2] <<std::endl;
 	free(dis);
 	free(Text);
