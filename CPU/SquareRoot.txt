@@ -1,5 +1,6 @@
 IN
-OUT
+IN
+IN
 
 POP r2
 POP r1
