@@ -1,3 +1,4 @@
+IN
 CALL fact
 EXIT
 
