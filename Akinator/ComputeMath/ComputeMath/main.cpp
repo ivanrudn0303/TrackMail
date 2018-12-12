@@ -10,12 +10,12 @@ int main()
 	TreeCreate(Tr, "C:/Users/Иван/source/repos/ComputeMath/ComputeMath/text.txt");
 	int i = 0;
 	std::cout << TreeError(Tr) << std::endl;
-	TreeDestruct(Tr);
 //	Tr.Right->Right->Top = &Tr;
 //	std::cout << TreeError(&Tr) << std::endl;
 //	while (true)
 //	{
-//		Akinator(&Tr);
+		Akinator(Tr);
 //	}
+	TreeDestruct(Tr);
 	return 0;
 }

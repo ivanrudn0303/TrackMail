@@ -1,1 +1,1 @@
-ask#left#{ask2#{ask3#left3#right3}#right2}
+humam#{nature#factory#{alive#rock#flower}}#{teacher##Ilya}

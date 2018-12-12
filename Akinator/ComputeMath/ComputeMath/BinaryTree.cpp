@@ -16,10 +16,6 @@ int Create(Tree *tr, Tree* top, char *str);
 int Create(Tree *tr, char *str);
 #endif // DEBUG_BINARY_TREE
 
-int Create(FILE*)
-{
-	return 0;
-}
 
 int Akinator(Tree* Tr)
 {
@@ -113,7 +109,7 @@ char * FindStopArgument(char *str)
 	{
 		fnd = strchr(fnd, '#');
 		if (fnd == nullptr)
-			return strchr(str, '\0');
+			fnd = strchr(str, '\0');
 		lftBracket = 0;
 		rhtBracket = 0;
 		char* lft = strchr(str, '{');
@@ -128,7 +124,7 @@ char * FindStopArgument(char *str)
 		{
 			rht++;
 			rhtBracket++;
-			rht = strchr(rht, '{');
+			rht = strchr(rht, '}');
 		}
 		fnd++;
 	} while (lftBracket != rhtBracket);
@@ -174,7 +170,10 @@ int Create(Tree *tr, char *str)
 		arg = ++end;
 	}
 	else
+	{
+		arg = ++end;
 		tr->Left = nullptr;
+	}
 	end = FindStopArgument(arg);
 	MINUSBRK(arg);
 	if (end > arg)
@@ -189,8 +188,10 @@ int Create(Tree *tr, char *str)
 		arg = ++end;
 	}
 	else
+	{
+		arg = ++end;
 		tr->Right = nullptr;
-
+	}
 	return 0;
 }
 
