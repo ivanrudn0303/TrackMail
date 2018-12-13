@@ -1,0 +1,26 @@
+start:	pop r2
+		pop r1
+		pop r0
+		fmul r3, r1, r1
+		fmul r2, r0, r2
+		fmul r2, r2, -4.0
+		fsub r3, r3, r2
+		jg two
+		
+two:	push r0
+		push r1
+		push r2
+		mov r0, r3
+		call sqrt
+		mov r3, r0 //sqrt(discriminant) in r3
+		pop r2
+		pop r1
+		pop r0
+		mov r1, -r1
+		fdiv r1, r1, 2.0
+		fdiv r1, r1, r0
+		fdiv r3, r3, 2.0
+		fdiv r3, r3, r0
+		fsub r1, r1, r3
+		fadd r0, r1, r3
+		ret 0

@@ -1,0 +1,19 @@
+IN
+CALL fact
+OUT
+EXIT
+
+fact:	POP r0
+	PUSHR r0
+	PUSH 1
+	JE ret
+	PUSHR r0
+	PUSH 1
+	PUSHR r0	
+	SUB
+	CALL fact
+	MUL
+	RET
+
+ret:	PUSH 1
+	RET
