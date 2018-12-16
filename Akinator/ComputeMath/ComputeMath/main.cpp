@@ -6,8 +6,10 @@
 
 int main()
 {
-	Tree *Tr = (Tree*)calloc(1, sizeof(Tree));
-	TreeCreate(Tr, "C:/Users/Иван/source/repos/ComputeMath/ComputeMath/text.txt");
+	int res;
+	Tree *Tr = TreeCreate(&res, "C:/Users/Иван/source/repos/ComputeMath/ComputeMath/text.txt");
+	if (res)
+		return res;
 	int i = 0;
 	std::cout << TreeError(Tr) << std::endl;
 //	Tr.Right->Right->Top = &Tr;

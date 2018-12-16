@@ -45,14 +45,22 @@ int Akinator(Tree* Tr)
 	return 0;
 }
 
-int TreeCreate(Tree *tr, const char *file)
+Tree* TreeCreate(int*res, const char *file)
 {
 	char* Str = GetData(file);
 	if (Str == nullptr)
-		return ERROR_CREATING;
-	int res = Create(tr, nullptr, Str);
+	{
+		*res = ERROR_CREATING;
+		return nullptr;
+	}
+	Tree* tr = (Tree*)calloc(1, sizeof(Tree));
+#ifdef DEBUG_BINARY_TREE
+	*res = Create(tr, nullptr, Str);
+#else
+	*res = Create(tr, Str);
+#endif // DEBUG_BINARY_TREE
 	free(Str);
-	return res;
+	return tr;
 }
 
 int CreateAkinatorNode(Tree *tr, tdata * nam, tdata * diff)
@@ -223,4 +231,5 @@ int TreeDestruct(Tree* tr)
 	TreeDestruct(tr->Right);
 	TreeDestruct(tr->Left);
 	free(tr);
+	return 0;
 }

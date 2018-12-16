@@ -18,7 +18,7 @@ struct Tree
 };
 
 int Akinator(Tree*);
-int TreeCreate(Tree*, const char*);
+Tree* TreeCreate(int*, const char*);
 int TreeDestruct(Tree*);
 
 #ifdef DEBUG_BINARY_TREE

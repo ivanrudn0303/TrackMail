@@ -1,3 +1,2 @@
 ﻿  BinaryTree.cpp
-c:\users\иван\source\repos\computemath\computemath\binarytree.cpp(226): warning C4715: TreeDestruct: значение возвращается не при всех путях выполнения
   ComputeMath.vcxproj -> C:\Users\Иван\source\repos\ComputeMath\Debug\ComputeMath.exe
