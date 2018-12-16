@@ -113,32 +113,18 @@ char * FindStopArgument(char *str)
 	int lftBracket = 0;
 	int rhtBracket = 0;
 	char* fnd = str;
-	do
+	for (;; fnd++)
 	{
-		fnd = strchr(fnd, '#');
-		if (fnd == nullptr)
-			fnd = strchr(str, '\0');
-		lftBracket = 0;
-		rhtBracket = 0;
-		char* lft = strchr(str, '{');
-		char* rht = strchr(str, '}');
-		while ((lft < fnd) && (lft != nullptr))
-		{
-			lft++;
+		if (((*fnd == '#') || (*fnd == '\0') )&& (lftBracket == rhtBracket))
+			break;
+		else if (*fnd == '{')
 			lftBracket++;
-			lft = strchr(lft, '{');
-		}
-		while ((rht < fnd) && (rht != nullptr))
-		{
-			rht++;
+		else if (*fnd == '}')
 			rhtBracket++;
-			rht = strchr(rht, '}');
-		}
-		fnd++;
-	} while (lftBracket != rhtBracket);
-	if((fnd - 2 > str) && (*(fnd - 2) == '}'))
-		*(fnd - 2) = '\0';
-	return fnd - 1;
+	}
+	if((fnd - 1 > str) && (*(fnd - 1) == '}'))
+		*(fnd - 1) = '\0';
+	return fnd;
 }
 
 #define MINUSBRK(ptr) if(*ptr == '{')\
