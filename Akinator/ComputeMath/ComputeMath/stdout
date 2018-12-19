@@ -1,0 +1,17 @@
+digraph graphname {
+	 1329416 [label="humam"]
+	 1329480 [label="nature"]
+	 0 [label="factory"]
+	 1329480 -> 0
+	 1329800 [label="alive"]
+	 0 [label="rock"]
+	 1329800 -> 0
+	 0 [label="flower"]
+	 1329800 -> 0
+	 1329480 -> 1329800
+	 1329416 -> 1329480
+	 0 [label="teacher"]
+	 0 [label="Ilya"]
+	 0 -> 0
+	 1329416 -> 0
+}

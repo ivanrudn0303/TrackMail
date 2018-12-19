@@ -20,6 +20,8 @@ struct Tree
 int Akinator(Tree*);
 Tree* TreeCreate(int*, const char*);
 int TreeDestruct(Tree*);
+int ObjectDescriptor(const Tree*, const tdata*);
+int DotDump(const Tree*, FILE*);
 
 #ifdef DEBUG_BINARY_TREE
 int TreeError(const Tree*);

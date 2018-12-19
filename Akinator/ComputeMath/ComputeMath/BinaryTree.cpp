@@ -6,9 +6,10 @@
 #include <Windows.h>
 
 int CreateAkinatorNode(Tree*, tdata* name, tdata* diff);
-int CreateLeave(Tree*, tdata*);
 char* GetData(const char*);
 char* FindStopArgument(char*);
+const Tree* Find(const Tree*, const tdata*);
+int NodeDump(const Tree* tr, FILE *f);
 
 #ifdef DEBUG_BINARY_TREE
 int Create(Tree *tr, Tree* top, char *str);
@@ -45,6 +46,28 @@ int Akinator(Tree* Tr)
 	return 0;
 }
 
+int ObjectDescriptor(const Tree* tr, const tdata* obj)
+{
+	const Tree* fnd = Find(tr, obj);
+	if(fnd == nullptr)
+		return ERROR_NOT_EXIST;
+	if (fnd == tr)
+	{
+		std::cout << tr->Data << std::endl;
+	}
+	else if (Find(tr->Left, obj) != nullptr)
+	{
+		std::cout << "not " << tr->Data << ", ";
+		return ObjectDescriptor(tr->Left, obj);
+	}
+	else
+	{
+		std::cout << tr->Data << ", ";
+		return ObjectDescriptor(tr->Right, obj);
+	}
+	return 0;
+}
+
 Tree* TreeCreate(int*res, const char *file)
 {
 	char* Str = GetData(file);
@@ -66,18 +89,14 @@ Tree* TreeCreate(int*res, const char *file)
 int CreateAkinatorNode(Tree *tr, tdata * nam, tdata * diff)
 {
 	tr->Left = (Tree*)malloc(sizeof(Tree));
-	CreateLeave(tr->Left, tr->Data);
+	tr->Left->Left = nullptr;
+	tr->Left->Right = nullptr;
+	tr->Left->Data = tr->Data;
 	tr->Right = (Tree*)malloc(sizeof(Tree));
-	CreateLeave(tr->Right, nam);
+	tr->Right->Left = nullptr;
+	tr->Right->Right = nullptr;
+	tr->Right->Data = nam;
 	tr->Data = diff;
-	return 0;
-}
-
-int CreateLeave(Tree*tr, tdata*dat)
-{
-	tr->Data = dat;
-	tr->Left = nullptr;
-	tr->Right = nullptr;
 	return 0;
 }
 
@@ -125,6 +144,19 @@ char * FindStopArgument(char *str)
 	if((fnd - 1 > str) && (*(fnd - 1) == '}'))
 		*(fnd - 1) = '\0';
 	return fnd;
+}
+
+const Tree * Find(const Tree *tr, const tdata *str)
+{
+	if (tr == nullptr)
+		return nullptr;
+	const Tree* fnd;
+	if (!strcmp(str, tr->Data))
+		return tr;
+	else if (fnd = Find(tr->Left, str))
+		return fnd;
+	else
+		return Find(tr->Right, str);
 }
 
 #define MINUSBRK(ptr) if(*ptr == '{')\
@@ -217,5 +249,36 @@ int TreeDestruct(Tree* tr)
 	TreeDestruct(tr->Right);
 	TreeDestruct(tr->Left);
 	free(tr);
+	return 0;
+}
+
+int DotDump(const Tree* tr, FILE* f)
+{
+	if (!f)
+		return ERROR_FILE;
+	if (!tr)
+		return ERROR_POINTER;
+	int err = TreeError(tr);
+	if (err)
+		return err;
+	fprintf(f, "digraph graphname {\n");
+	NodeDump(tr, f);
+	fprintf(f, "}\n");
+	return 0;
+}
+
+int NodeDump(const Tree* tr, FILE *f)
+{
+	fprintf(f, "\t%lu [label=\"%s\"]\n", (uint32_t)tr, tr->Data);
+	if (tr->Left)
+	{
+		NodeDump(tr->Left, f);
+		fprintf(f, "\t%lu -> %lu\n", (uint32_t)tr, (uint32_t)(tr->Left));
+	}
+	if (tr->Right)
+	{
+		NodeDump(tr->Right, f);
+		fprintf(f, "\t%lu -> %lu\n", (uint32_t)tr, (uint32_t)(tr->Right));
+	}
 	return 0;
 }

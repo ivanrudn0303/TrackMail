@@ -7,4 +7,6 @@
 #define ERROR_DATA 4
 #define ERROR_DATA_LEFT 5
 #define ERROR_DATA_RIGHT 6
+#define ERROR_NOT_EXIST 7
+#define ERROR_FILE 8
 #endif // !ERRORLIST_H
