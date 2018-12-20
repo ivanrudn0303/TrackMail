@@ -11,19 +11,29 @@ int main()
 	if (res)
 		return res;
 	int i = 0;
-	ObjectDescriptor(Tr, "Ilya");
-	ObjectDescriptor(Tr, "rock");
-	FILE *f = fopen("C:/Users/Иван/source/repos/ComputeMath/ComputeMath/Dump.gv", "w");
-	std::cout << "Dump Code Error Tree " << DotDump(Tr, f) << std::endl;
-	fclose(f);
-	std::cout << TreeError(Tr) << std::endl;
-//	Tr.Right->Right->Top = &Tr;
-//	std::cout << TreeError(&Tr) << std::endl;
-//	while (true)
-//	{
-		Akinator(Tr);
-		Akinator(Tr);
-//	}
+	char chr = '\0';
+	tdata buf[256] = { 0 };
+	while (chr != 'e')
+	{
+		std::cout << "Commands: [a]- Akinator, [d]- Descriptor, [e]- exit, [c]- dump" << std::endl;
+		std::cin >> chr;
+		switch (chr)
+		{
+			case 'a':
+				Akinator(Tr);
+				break;
+			case 'd':
+				std::cin >> buf;
+				ObjectDescriptor(Tr, buf);
+				break;
+			case 'c':
+				DotDump(Tr, "C:/Users/Иван/source/repos/ComputeMath/ComputeMath/Dump.gv");
+				break;
+			default:
+				break;
+		}
+
+	}
 	TreeDestruct(Tr);
 	return 0;
 }

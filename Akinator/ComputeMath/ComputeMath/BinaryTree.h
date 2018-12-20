@@ -21,7 +21,7 @@ int Akinator(Tree*);
 Tree* TreeCreate(int*, const char*);
 int TreeDestruct(Tree*);
 int ObjectDescriptor(const Tree*, const tdata*);
-int DotDump(const Tree*, FILE*);
+int DotDump(const Tree*, const char*);
 
 #ifdef DEBUG_BINARY_TREE
 int TreeError(const Tree*);

@@ -9,7 +9,7 @@ int CreateAkinatorNode(Tree*, tdata* name, tdata* diff);
 char* GetData(const char*);
 char* FindStopArgument(char*);
 const Tree* Find(const Tree*, const tdata*);
-int NodeDump(const Tree* tr, FILE *f);
+int NodeDump(const Tree* tr, HANDLE f);
 
 #ifdef DEBUG_BINARY_TREE
 int Create(Tree *tr, Tree* top, char *str);
@@ -97,6 +97,11 @@ int CreateAkinatorNode(Tree *tr, tdata * nam, tdata * diff)
 	tr->Right->Right = nullptr;
 	tr->Right->Data = nam;
 	tr->Data = diff;
+#ifdef DEBUG_BINARY_TREE
+	tr->Left->Top = tr;
+	tr->Right->Top = tr;
+#endif // DEBUG_BINARY_TREE
+
 	return 0;
 }
 
@@ -252,33 +257,43 @@ int TreeDestruct(Tree* tr)
 	return 0;
 }
 
-int DotDump(const Tree* tr, FILE* f)
+int DotDump(const Tree* tr, const char* path)
 {
-	if (!f)
+	if (!path)
+		return ERROR_FILE;
+	HANDLE hFile = CreateFile(path, GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+	if (!hFile)
 		return ERROR_FILE;
 	if (!tr)
 		return ERROR_POINTER;
+#ifdef DEBUG_BINARY_TREE
 	int err = TreeError(tr);
 	if (err)
 		return err;
-	fprintf(f, "digraph graphname {\n");
-	NodeDump(tr, f);
-	fprintf(f, "}\n");
+#endif
+	WriteFile(hFile, "digraph graphname {\r\n", sizeof("digraph graphname {\r\n"), nullptr, nullptr);
+	NodeDump(tr, hFile);
+	WriteFile(hFile, "}\r\n", sizeof("}\r\n"), nullptr, nullptr);
+	CloseHandle(hFile);
 	return 0;
 }
 
-int NodeDump(const Tree* tr, FILE *f)
+int NodeDump(const Tree* tr, HANDLE f)
 {
-	fprintf(f, "\t%lu [label=\"%s\"]\n", (uint32_t)tr, tr->Data);
+	char buf[512] = { 0 };
+	sprintf(buf, "\t%lu [label=\"%s\"]\r\n", (uint32_t)tr, tr->Data);
+	WriteFile(f, buf, strlen(buf), nullptr, nullptr);
 	if (tr->Left)
 	{
 		NodeDump(tr->Left, f);
-		fprintf(f, "\t%lu -> %lu\n", (uint32_t)tr, (uint32_t)(tr->Left));
+		sprintf(buf, "\t%lu -> %lu\r\n", (uint32_t)tr, (uint32_t)(tr->Left));
+		WriteFile(f, buf, strlen(buf), nullptr, nullptr);
 	}
 	if (tr->Right)
 	{
 		NodeDump(tr->Right, f);
-		fprintf(f, "\t%lu -> %lu\n", (uint32_t)tr, (uint32_t)(tr->Right));
+		sprintf(buf, "\t%lu -> %lu\r\n", (uint32_t)tr, (uint32_t)(tr->Right));
+		WriteFile(f, buf, strlen(buf), nullptr, nullptr);
 	}
 	return 0;
 }
